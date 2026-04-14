@@ -12,7 +12,7 @@ export async function updateSession(request: NextRequest) {
 
     // Defensive check for environment variables to prevent middleware crash
     if (!supabaseUrl || !supabaseAnonKey) {
-      console.error('Missing Supabase environment variables in Middleware')
+      console.error('Middleware: Missing Supabase environment variables')
       return supabaseResponse
     }
 
@@ -37,22 +37,34 @@ export async function updateSession(request: NextRequest) {
       }
     )
 
-    // This will refresh the session if expired
+    // IMPORTANT: Avoid writing any logic between createServerClient and
+    // supabase.auth.getUser(). A simple mistake can make it very hard to debug
+    // issues with Supabase Auth.
     const { data: { user } } = await supabase.auth.getUser()
 
     const pathname = request.nextUrl.pathname
-    const isPublicRoute = pathname.startsWith('/login') || pathname.startsWith('/signup') || pathname.startsWith('/auth')
+    
+    // Auth related routes and static assets should be excluded
+    const isPublicRoute = 
+      pathname.startsWith('/login') || 
+      pathname.startsWith('/signup') || 
+      pathname.startsWith('/auth') ||
+      pathname === '/favicon.ico'
 
     if (!user && !isPublicRoute) {
       const loginUrl = request.nextUrl.clone()
       loginUrl.pathname = '/login'
+      // Preserve the original destination for redirect after login if needed
+      if (pathname !== '/') {
+        loginUrl.searchParams.set('next', pathname)
+      }
       return NextResponse.redirect(loginUrl)
     }
 
     return supabaseResponse
   } catch (e) {
     // If anything fails, let the request through rather than returning a 500 error
-    console.error('Middleware execution error:', e)
+    console.error('Middleware execution error caught:', e)
     return NextResponse.next({
       request,
     })
