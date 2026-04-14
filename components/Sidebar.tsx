@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Users, Plus, Trash2, Hash, LogOut, User } from 'lucide-react';
+import { Users, Plus, Trash2, Hash, LogOut, User as UserIcon } from 'lucide-react';
 import { addCategory, deleteCategory } from '@/app/actions/categories';
 import { logout } from '@/app/actions/auth';
 import { createClient } from '@/utils/supabase/client';
+import { type User } from '@supabase/supabase-js';
 
 interface Category {
   id: string;
@@ -20,7 +21,7 @@ interface SidebarProps {
 export default function Sidebar({ categories, activeCategoryId, onSelectCategory }: SidebarProps) {
   const [newCatName, setNewCatName] = useState('');
   const [isAdding, setIsAdding] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const supabase = createClient();
 
   useEffect(() => {
@@ -29,7 +30,7 @@ export default function Sidebar({ categories, activeCategoryId, onSelectCategory
       setUser(user);
     };
     getUser();
-  }, []);
+  }, [supabase.auth]);
 
   const handleAdd = async () => {
     if (!newCatName.trim()) return;
@@ -44,7 +45,7 @@ export default function Sidebar({ categories, activeCategoryId, onSelectCategory
         <div className="user-profile">
           <div className="user-info">
             <div className="avatar">
-              <User size={20} />
+              <UserIcon size={20} />
             </div>
             <span className="email">{user.email}</span>
           </div>

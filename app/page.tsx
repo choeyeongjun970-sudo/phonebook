@@ -1,21 +1,27 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import { Search, Plus, UserPlus } from 'lucide-react';
+import { Search, UserPlus } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
 import ContactCard from '@/components/ContactCard';
 import ContactForm from '@/components/ContactForm';
 import { getContacts } from '@/app/actions/contacts';
 import { getCategories } from '@/app/actions/categories';
+import { type Contact } from '@/components/ContactCard';
+
+interface Category {
+  id: string;
+  name: string;
+}
 
 export default function Home() {
-  const [contacts, setContacts] = useState<any[]>([]);
-  const [categories, setCategories] = useState<any[]>([]);
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
-  const [selectedContact, setSelectedContact] = useState<any>(null);
-  const [isPending, startTransition] = useTransition();
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const [, startTransition] = useTransition();
 
   // 최초 데이터 로드 및 상태 변경 시 데이터 페칭
   useEffect(() => {
@@ -33,7 +39,7 @@ export default function Home() {
     });
   }, [activeCategoryId, searchTerm, showForm]);
 
-  const handleEdit = (contact: any) => {
+  const handleEdit = (contact: Contact) => {
     setSelectedContact(contact);
     setShowForm(true);
   };

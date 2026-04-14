@@ -1,10 +1,10 @@
 'use client';
 
-import { Phone, Mail, MoreHorizontal, User, Trash2, Edit2 } from 'lucide-react';
+import { Phone, User, Trash2, Edit2 } from 'lucide-react';
 import { deleteContact } from '@/app/actions/contacts';
 import { useState } from 'react';
 
-interface Contact {
+export interface Contact {
   id: string;
   name: string;
   phone_number: string;
@@ -13,7 +13,7 @@ interface Contact {
   avatar_url?: string;
   categories?: {
     name: string;
-  };
+  } | null;
 }
 
 interface ContactCardProps {
